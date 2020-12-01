@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@mapbox/togeojson": "^0.16.0",
+    "ffmpeg": "^0.0.4",
     "gopro-telemetry": "^1.1.25",
     "gpmf-extract": "^0.1.18",
     "minimist": "^1.2.5",
