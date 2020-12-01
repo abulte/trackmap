@@ -11,6 +11,6 @@ if (argv.copyonly) {
 } else {
     gpx2feature(path.join(__dirname, '../track', 'track.gpx'), 60)
     vid2Img.extractFotosFromVideo(videoFolder, () => {
-        vid2Img.copyImagesToWebsite(videoFolder, argv._)
+        vid2Img.copyImagesToWebsite(videoFolder)
     })
 }

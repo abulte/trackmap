@@ -119,7 +119,6 @@ async function extractImages(filepath, filename) {
     return new Promise((resolve, reject) => {
         video.fnExtractFrameToJPG(path.join(imageOutputPath, filename), {
             file_name: 'image',
-            quality: 10
         }, () => {
             resolve()
         });
@@ -147,15 +146,37 @@ function copyImagesToWebsite(videoPath, selectedImages) {
     });
 }
 
+function copyImage(videoname, imageFile) {
+    var basImagePath = path.join(imageOutputPath, videoname)
+    fs.createReadStream(path.join(basImagePath, imageFile)).pipe(fs.createWriteStream(path.join('..', 'website', 'fotos', videoname + "_" + imageFile)))
+    sharp(path.join(basImagePath, imageFile)).withMetadata()
+        .resize(300).toFile(path.join('..', 'website', 'thumbnails', videoname + "_" + imageFile))
+}
+
 function copyVideoImagesToWebsite(videoname, selectedImages) {
     var basImagePath = path.join(imageOutputPath, videoname)
     var paths = fs.readdirSync(basImagePath)
-    paths.forEach((imageFile) => {
-        if (selectedImages.includes(videoname + "_" + imageFile.slice(0, -4))) {
-            fs.createReadStream(path.join(basImagePath, imageFile)).pipe(fs.createWriteStream(path.join('..', 'website', 'fotos', videoname + "_" + imageFile)))
-            sharp(path.join(basImagePath, imageFile)).withMetadata()
-                .resize(300).toFile(path.join('..', 'website', 'thumbnails', videoname + "_" + imageFile))
+    let pathsKeep
+    // compute sample when no selected image
+    if (!selectedImages) {
+        const maxImages = 100
+        const total = paths.length
+        if (total <= maxImages) {
+            pathsKeep = paths
+        } else {
+            const freq = Math.round(total / 100)
+            pathsKeep = paths.filter((imageFile) => {
+                const index = imageFile.replace('image_', '').replace('.jpg', '')
+                return parseInt(index) % freq === 0
+            })
         }
+    } else {
+        pathsKeep = paths.filter(imageFile => {
+          return selectedImages.includes(videoname + "_" + imageFile.slice(0, -4))
+        })
+    }
+    pathsKeep.forEach((imageFile) => {
+        copyImage(videoname, imageFile)
     })
 
 }
